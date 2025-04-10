@@ -1,3 +1,4 @@
+# streamlit run app.py
 import streamlit as st
 import pandas as pd
 import hashlib
@@ -103,42 +104,68 @@ def calculate_loan_amount(liquidity, funds, profit):
 st.title("📊 Multi-Function App with Buttons")
 
 # Buttons to switch between apps
-option = st.sidebar.radio("Choose a Feature", ["Delivery Blockchain", "Loan Repayment Ratio", "Loan Prediction"])
+option = st.sidebar.radio("Choose a Feature", ["Delivery Blockchain", "Distance Between Locations", "Loan Prediction"])
 
 # ------------------------------
 # --- 1. Loan Repayment Ratio
 # ------------------------------
-if option == "Loan Repayment Ratio":
-    st.header("📈 Loan Repayment Ratio Calculator")
+import streamlit as st
+import pandas as pd
+from math import radians, cos, sin, sqrt, atan2
 
-    uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx","csv"], key="repayment_file")
-    loan_id = st.text_input("Enter LOAN ID")
+# Simulate selected option since dropdown is removed
 
-    def calculate_repayment_ratio(df, loan_id):
-        if 'LOAN ID' not in df.columns or 'LOAN AMOUNT' not in df.columns or 'LOAN AMOUNT REFUNDED' not in df.columns:
-            return "Dataset is missing required columns."
+if option == "Distance Between Locations":
+    st.header("📍 Booking Distance Calculator")
 
-        row = df[df['LOAN ID'] == loan_id]
+    uploaded_file = st.file_uploader("📤 Upload Excel or CSV File", type=["xlsx", "csv"])
+    booking_id = st.text_input("🔎 Enter BookingID")
+
+    # Haversine formula
+    def haversine(lat1, lon1, lat2, lon2):
+        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+        a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        r = 6371  # Radius of Earth in km
+        return c * r
+
+    # Distance calculation logic
+    def calculate_distance(df, booking_id):
+        required_cols = ['BookingID', 'Org_lat_lon', 'Des_lat_lon']
+        if not all(col in df.columns for col in required_cols):
+            return "❗ Dataset is missing required columns: BookingID, Org_lat_lon, or Des_lat_lon."
+
+        row = df[df['BookingID'].astype(str) == str(booking_id)]
         if row.empty:
-            return "LOAN ID not found."
+            return f"❗ BookingID `{booking_id}` not found in the dataset."
 
         try:
-            loan_amount = float(row['LOAN AMOUNT'].values[0])
-            refunded = float(row['LOAN AMOUNT REFUNDED'].values[0])
-            if loan_amount == 0:
-                return "Loan amount is zero. Cannot compute ratio."
-            repayment_ratio = refunded / loan_amount
-            return f"Repayment Ratio for {loan_id}: **{repayment_ratio:.2f}**"
+            org_lat_lon = row['Org_lat_lon'].values[0]
+            des_lat_lon = row['Des_lat_lon'].values[0]
+            org_lat, org_lon = map(float, org_lat_lon.split(','))
+            des_lat, des_lon = map(float, des_lat_lon.split(','))
+            distance = haversine(org_lat, org_lon, des_lat, des_lon)
+            return f"🛣️ Distance for BookingID `{booking_id}` is **{distance:.2f} km**"
         except Exception as e:
-            return f"Error in processing data: {str(e)}"
+            return f"❌ Error in processing coordinates: {str(e)}"
 
-    if uploaded_file and loan_id:
+    # Execution block
+    if uploaded_file and booking_id:
         try:
-            df = pd.read_excel(uploaded_file)
-            result = calculate_repayment_ratio(df, loan_id)
+            if uploaded_file.name.endswith(".csv"):
+                df = pd.read_csv(uploaded_file)
+            else:
+                df = pd.read_excel(uploaded_file)
+
+            result = calculate_distance(df, booking_id)
             st.markdown(result)
         except Exception as e:
-            st.error(f"Failed to read file: {str(e)}")
+            st.error(f"❌ Failed to read or process file: {str(e)}")
+    else:
+        st.info("⬆️ Please upload a file and enter a BookingID to calculate the distance.")
+
 
 # ------------------------------
 # --- 2. Loan Prediction
