@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
+fromsklear.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import GradientBoostingRegressor
 import warnings
