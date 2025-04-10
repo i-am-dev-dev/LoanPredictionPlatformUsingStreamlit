@@ -6,7 +6,6 @@ from time import time
 import random
 import os
 import numpy as np
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
@@ -111,7 +110,7 @@ option = st.sidebar.radio("Choose a Feature", ["Delivery Blockchain", "Loan Repa
 if option == "Loan Repayment Ratio":
     st.header("📈 Loan Repayment Ratio Calculator")
 
-    uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"], key="repayment_file")
+    uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx","csv"], key="repayment_file")
     loan_id = st.text_input("Enter LOAN ID")
 
     def calculate_repayment_ratio(df, loan_id):
@@ -145,7 +144,7 @@ if option == "Loan Repayment Ratio":
 # ------------------------------
 elif option == "Loan Prediction":
     st.header("🏦 Loan Prediction System")
-    uploaded_file = st.file_uploader("Upload CSV File", type=["csv"], key="loan_pred_file")
+    uploaded_file = st.file_uploader("Upload CSV File", type=["csv","xlsx"], key="loan_pred_file")
 
     if uploaded_file is not None:
         try:
@@ -184,7 +183,7 @@ elif option == "Loan Prediction":
 elif option == "Delivery Blockchain":
     st.header("🚛 Delivery Blockchain with Stakeholders")
 
-    uploaded_file = st.file_uploader("Upload Excel File", type=["csv"], key="blockchain_file")
+    uploaded_file = st.file_uploader("Upload Excel File", type=["csv","xlsx"], key="blockchain_file")
     if uploaded_file:
         try:
             df = pd.read_excel(uploaded_file)
