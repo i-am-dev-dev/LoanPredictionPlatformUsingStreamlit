@@ -1,1 +1,1 @@
-# P_2
+# Loan Prediction Platform using Streamlit 
